@@ -40,12 +40,4 @@ public class UserController {
         }
         return userService.signup(requestDto);
     }
-
-//    @PostMapping("/user/login")
-//    public StatusResponseDto login(@RequestBody LoginRequestDto requestDto, HttpServletResponse res) {
-//          return userService.login(requestDto, res);
-//
-//    }
-
-
 }
