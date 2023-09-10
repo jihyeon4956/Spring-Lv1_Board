@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter @Setter
 @NoArgsConstructor
@@ -24,6 +27,9 @@ public class Board extends Timestamped{
     @ManyToOne
     @JoinColumn(name = "user_id") // user_id는 User 엔티티의 PK 컬럼
     private User user;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    private List<Comment> commentList = new ArrayList<>();
 
     public Board(BoardRequestDto requestDto, User user) {
         this.username = user.getUsername();

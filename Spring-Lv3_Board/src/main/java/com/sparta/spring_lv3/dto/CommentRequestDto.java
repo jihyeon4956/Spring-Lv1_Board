@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class CommentRequestDto {
     private Long boardId;   // 보통 FE에서 받아옴
-    private String contents;
+    private String comment;
 }

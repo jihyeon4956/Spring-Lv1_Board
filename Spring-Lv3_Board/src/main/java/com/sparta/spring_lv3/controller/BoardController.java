@@ -27,8 +27,8 @@ public class BoardController {
 
     // 게시글 전체조회
     @GetMapping("/boards")
-    public List<BoardResponseDto> getBoards() {
-        return boardService.getBoards();
+    public List<BoardResponseDto> getBoardWithComments() {
+        return boardService.getBoardWithComments();
     }
 
     // 게시글 선택조회

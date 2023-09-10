@@ -3,11 +3,13 @@ package com.sparta.spring_lv3.service;
 
 import com.sparta.spring_lv3.dto.BoardRequestDto;
 import com.sparta.spring_lv3.dto.BoardResponseDto;
+import com.sparta.spring_lv3.dto.CommentResponseDto;
 import com.sparta.spring_lv3.dto.StatusResponseDto;
 import com.sparta.spring_lv3.entity.Board;
 import com.sparta.spring_lv3.entity.User;
 import com.sparta.spring_lv3.entity.UserRoleEnum;
 import com.sparta.spring_lv3.repository.BoardRepository;
+import com.sparta.spring_lv3.repository.CommentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,13 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
-
+    private final CommentRepository commentRepository;
     // 생성
     public BoardResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest req) {
         User user = (User) req.getAttribute("user");
@@ -31,18 +34,25 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
     // 전체 게시글 목록 조회
-    public List<BoardResponseDto> getBoards() {
-        return boardRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(BoardResponseDto::new)
-                .toList();
+    public List<BoardResponseDto> getBoardWithComments() {
+        List<Board> boards = boardRepository.findAllByOrderByCreatedAtDesc();
+        return boards.stream().map(BoardResponseDto::new).toList();
+//        return boardRepository.findAllByOrderByCreatedAtDesc()
+//                .stream()
+//                .map(BoardResponseDto::new)
+//                .toList();
     }
     // 선택조회
     public BoardResponseDto selectBoard(Long id) {
         // 해당 ID의 게시글을 조회
         Board board = findBoard(id);
 
-        return new BoardResponseDto(board);
+        List<CommentResponseDto> comments = commentRepository.findAllByBoardIdOrderByCreatedAtDesc(id)
+                .stream()
+                .map(CommentResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new BoardResponseDto(board, comments);
     }
     // 수정
     @Transactional
