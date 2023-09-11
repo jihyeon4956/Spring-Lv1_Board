@@ -40,11 +40,8 @@ public class BoardService {
     public List<BoardResponseDto> getBoardWithComments() {
         List<Board> boards = boardRepository.findAllByOrderByCreatedAtDesc();
         return boards.stream().map(BoardResponseDto::new).toList();
-//        return boardRepository.findAllByOrderByCreatedAtDesc()
-//                .stream()
-//                .map(BoardResponseDto::new)
-//                .toList();
     }
+
     // 선택조회
     public BoardResponseDto selectBoard(Long id) {
         // 해당 ID의 게시글을 조회

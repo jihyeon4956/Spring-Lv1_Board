@@ -22,7 +22,8 @@ public class BoardController {
 
     // 게시글 생성하기
     @PostMapping("/boards")
-    public BoardResponseDto creatBoard(@RequestBody BoardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public BoardResponseDto creatBoard(@RequestBody BoardRequestDto requestDto,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.createBoard(requestDto, userDetails);
     }
 

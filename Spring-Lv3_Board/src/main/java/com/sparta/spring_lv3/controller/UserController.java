@@ -26,7 +26,9 @@ public class UserController {
 
     private final UserService userService;
 
+
     // 회원가입 정보 입력
+    @AuthFilterExclude()
     @PostMapping("/user/signup")
     public StatusResponseDto signup(@RequestBody @Valid SignupRequestDto requestDto, BindingResult bindingResult){
 

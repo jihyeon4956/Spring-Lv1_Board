@@ -48,9 +48,6 @@ public class BoardService {
                 .toList();
     }
 
-
-
-
     // 선택조회
     public BoardResponseDto getBoardById(Long id) {
         // 해당 ID의 게시글을 조회
@@ -59,7 +56,6 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-
     // 수정
     @Transactional
     public Long updateBoard(Long id, BoardRequestDto requestDto) {
@@ -67,15 +63,11 @@ public class BoardService {
         String password = requestDto.getPassword();
         Board board = findBoard(id);
 
-
-        if(!passwordEncoder.matches(password, board.getPassword())) { // (평문, 암호문)
+        if(!passwordEncoder.matches(password, board.getPassword())) { // passwordEncoder.matches (평문, 암호문)
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
-
-        // 이름, 제목, 내용 수정가능
         board.update(requestDto);
         return id;
-
     }
 
     // 삭제
@@ -84,7 +76,7 @@ public class BoardService {
         String password = requestDto.getPassword();
         Board board = findBoard(id);
 
-        if(!passwordEncoder.matches(password, board.getPassword())) { // (평문, 암호문)
+        if(!passwordEncoder.matches(password, board.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
 
