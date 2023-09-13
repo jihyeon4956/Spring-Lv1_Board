@@ -13,6 +13,7 @@ import com.sparta.spring_lv5.repository.UserRepository;
 import com.sparta.spring_lv5.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,39 +56,31 @@ public class BoardService {
     }
     // 수정
     @Transactional
-    public StatusResponseDto updateBoard(Long id, BoardRequestDto requestDto, UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> updateBoard(Long id, BoardRequestDto requestDto, UserDetailsImpl userDetails) {
         // 해당 게시글이 DB에 존재하는지 확인
         Board board = findBoard(id);
         // 작성자이거나 관리자인 경우 수정 가능
         if(board.getUsername().equals(userDetails.getUsername()) || userDetails.getUser().getRole() == UserRoleEnum.ADMIN){
             board.update(requestDto);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), "수정 성공!");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), "수정 성공!"));
         } else {
-            return new StatusResponseDto(String.valueOf(HttpStatus.FORBIDDEN), "작성자만 수정할 수 있습니다.");
+            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
         }
     }
 
     // 삭제
-    public StatusResponseDto deleteMemo(Long id, UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> deleteMemo(Long id, UserDetailsImpl userDetails) {
         // 해당 메모가 DB에 존재하는지 확인
         Board board = findBoard(id);
 
         if(board.getUsername().equals(userDetails.getUsername()) || userDetails.getUser().getRole() == UserRoleEnum.ADMIN){
             boardRepository.delete(board);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), id + "번 게시물 삭제에 성공했습니다.");
-        } else return new StatusResponseDto(String.valueOf(HttpStatus.FORBIDDEN), "작성자만 삭제할 수 있습니다.");
-    }
-
-
-    // 게시판 찾기 메서드
-    private Board findBoard(Long id) {
-        return boardRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
-        );
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), id + "번 게시물 삭제에 성공했습니다."));
+        } else throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
     }
 
     @Transactional
-    public StatusResponseDto likeCount(Long id, UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> likeCount(Long id, UserDetailsImpl userDetails) {
         User user = userRepository.findById(userDetails.getUser().getId()).orElseThrow(
                 ()-> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
         Board board = boardRepository.findById(id).orElseThrow(
@@ -96,11 +89,18 @@ public class BoardService {
         Like findLike = likeRepository.findByUserAndBoard(user, board);
         if(findLike != null) {
             likeRepository.delete(findLike);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), "좋아요 취소");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), "좋아요 취소"));
         } else {
             Like like = new Like(user, board);
             likeRepository.save(like);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), "좋아요 등록");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), "좋아요 등록"));
         }
+    }
+
+    // 게시판 찾기 메서드
+    private Board findBoard(Long id) {
+        return boardRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("선택한 게시글이 존재하지 않습니다.")
+        );
     }
 }

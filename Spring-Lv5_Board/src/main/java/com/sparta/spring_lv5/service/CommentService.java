@@ -11,6 +11,7 @@ import com.sparta.spring_lv5.repository.UserRepository;
 import com.sparta.spring_lv5.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,30 +28,30 @@ public class CommentService {
         User user = userDetails.getUser();
 
         Board saveBoard = boardRepository.findById(requestDto.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("선택한 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new NullPointerException("선택한 게시글이 존재하지 않습니다."));
         return new CommentResponseDto(commentRepository.save(new Comment(requestDto, saveBoard, user)));
     }
 
     @Transactional
-    public StatusResponseDto updateComment(Long id, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> updateComment(Long id, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
         Comment comment = findComment(id);
 
         if (comment.getUsername().equals(userDetails.getUsername()) || userDetails.getUser().getRole() == UserRoleEnum.ADMIN){
             comment.update(requestDto);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), "댓글 업데이트 성공");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), "댓글 업데이트 성공"));
         } else {
-            return new StatusResponseDto(String.valueOf(HttpStatus.FORBIDDEN), "작성자만 수정할 수 있습니다.");
+            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
         }
     }
 
-    public StatusResponseDto deleteComment(Long id, UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> deleteComment(Long id, UserDetailsImpl userDetails) {
         Comment comment = findComment(id);
 
         if (comment.getUsername().equals(userDetails.getUsername()) || userDetails.getUser().getRole() == UserRoleEnum.ADMIN) {
             commentRepository.delete(comment);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), id + "번 댓글 삭제에 성공했습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), id + "번 댓글 삭제에 성공했습니다."));
         } else {
-            return new StatusResponseDto(String.valueOf(HttpStatus.FORBIDDEN), "작성자만 삭제할 수 있습니다.");
+            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
 
     }
@@ -61,7 +62,7 @@ public class CommentService {
                 .orElseThrow(() -> new IllegalArgumentException("선택한 댓글은 존재하지 않습니다."));
     }
 
-    public StatusResponseDto likeCount(Long id, UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> likeCount(Long id, UserDetailsImpl userDetails) {
         User user = userRepository.findById(userDetails.getUser().getId()).orElseThrow(
                 ()-> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
         Comment comment = commentRepository.findById(id).orElseThrow(
@@ -70,11 +71,11 @@ public class CommentService {
         Like findLike = likeRepository.findByUserAndComment(user, comment);
         if(findLike != null) {
             likeRepository.delete(findLike);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), "좋아요 취소");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(),"좋아요 취소"));
         } else {
             Like like = new Like(user, comment);
             likeRepository.save(like);
-            return new StatusResponseDto(String.valueOf(HttpStatus.OK), "좋아요 등록");
+            return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), "좋아요 등록"));
         }
     }
 }

@@ -8,6 +8,7 @@ import com.sparta.spring_lv5.jwt.JwtUtil;
 import com.sparta.spring_lv5.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class UserService {
     // ADMIN_TOKEN _일반 사용자인지 관리자인지 구분하기 위해 사용함
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";  // 실제로 이렇게 주진 않음
     
-    public StatusResponseDto signup(SignupRequestDto requestDto) {
+    public ResponseEntity<StatusResponseDto> signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());  // 인코딩으로 저장
         
@@ -44,6 +45,6 @@ public class UserService {
         }
         User user = new User(username, password, role);
         userRepository.save(user);
-        return new StatusResponseDto(String.valueOf(HttpStatus.OK), "회원가입 성공");
+        return ResponseEntity.status(HttpStatus.OK).body(new StatusResponseDto(HttpStatus.OK.value(), "회원가입 성공"));
     }
 }

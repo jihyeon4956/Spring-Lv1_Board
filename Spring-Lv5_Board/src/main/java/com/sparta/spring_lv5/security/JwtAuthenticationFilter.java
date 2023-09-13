@@ -2,12 +2,14 @@ package com.sparta.spring_lv5.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.spring_lv5.dto.LoginRequestDto;
+import com.sparta.spring_lv5.dto.StatusResponseDto;
 import com.sparta.spring_lv5.entity.UserRoleEnum;
 import com.sparta.spring_lv5.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -45,26 +47,30 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException{
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain,
+                                            Authentication authResult) throws IOException{
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
         String token = jwtUtil.createToken(username, role);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-//        response.setContentType("text/plain");
-//        response.setCharacterEncoding("UTF-8");
-//        String massage = "로그인 성공";
-//        response.getWriter().write("상태코드 : " + response.getStatus() +", 메세지 : " +  massage);
+        StatusResponseDto responseDto = new StatusResponseDto(HttpStatus.OK.value(), "로그인 성공");
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpStatus.OK.value());
+        response.getWriter().write(new ObjectMapper().writeValueAsString(responseDto));
 
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/plain");
-        response.setStatus(401);
-        response.getWriter().write(response.getStatus() +"회원을 찾을 수 없습니다.");
+
+        StatusResponseDto responseDto = new StatusResponseDto(HttpStatus.UNAUTHORIZED.value(), "로그인 정보가 유효하지 않습니다.");
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.getWriter().write(new ObjectMapper().writeValueAsString(responseDto));
     }
 
 }

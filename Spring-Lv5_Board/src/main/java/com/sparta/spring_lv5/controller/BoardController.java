@@ -7,6 +7,7 @@ import com.sparta.spring_lv5.dto.StatusResponseDto;
 import com.sparta.spring_lv5.security.UserDetailsImpl;
 import com.sparta.spring_lv5.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,22 +42,22 @@ public class BoardController {
 
     // 게시글 수정하기
     @PutMapping("/boards/{id}")
-    public StatusResponseDto updateBoard(@PathVariable Long id,
-                                         @RequestBody BoardRequestDto requestDto,
-                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> updateBoard(@PathVariable Long id,
+                                                         @RequestBody BoardRequestDto requestDto,
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.updateBoard(id, requestDto, userDetails);
 
     }
     // 게시글 삭제하기
     @DeleteMapping("/boards/{id}")
-    public StatusResponseDto deleteMemo(@PathVariable Long id,
+    public ResponseEntity<StatusResponseDto> deleteMemo(@PathVariable Long id,
                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.deleteMemo(id, userDetails);
     }
 
     // 좋아요
     @PostMapping("/boards/{id}/like")
-    public StatusResponseDto likeCount(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<StatusResponseDto> likeCount(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return boardService.likeCount(id, userDetails);
     }
 }

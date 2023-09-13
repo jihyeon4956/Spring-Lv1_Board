@@ -33,7 +33,7 @@ public class Comment extends Timestamped {
     @JoinColumn(name = "user_id")
     private User user;  // 댓글을 남긴 사용자ID
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
     private List<Like> likeList = new ArrayList<>();
 
 
